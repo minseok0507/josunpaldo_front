@@ -6,7 +6,7 @@
 Its clean codebase and design significantly reduce development costs, time, and effort.</p>
 
 <h2>Features and Pages</h2>
-<ul>
+<ul> 
   <li>JWT authentication</li>
   <li>React Router</li>
   <li>React Hooks</li>
