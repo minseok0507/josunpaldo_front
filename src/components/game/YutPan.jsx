@@ -9,7 +9,7 @@ function YutPan() {
     document.querySelector("body").style.backgroundImage = `url("https://trello.com/1/cards/668e1ac952d3e586a8e1e1c4/attachments/668f29b92b3b2af3e4a6568e/previews/668f29ba2b3b2af3e4a658b7/download/%E2%80%94Slidesdocs%E2%80%94%E1%84%92%E1%85%A1%E1%86%AB%E1%84%80%E1%85%AE%E1%86%A8_%E1%84%89%E1%85%A5%E1%86%AF%E1%84%82%E1%85%A1%E1%86%AF_%E1%84%92%E1%85%AA%E1%86%BC%E1%84%80%E1%85%B3%E1%86%B7_%E1%84%89%E1%85%A2%E1%84%92%E1%85%A2_%E1%84%8E%E1%85%A1%E1%86%BC%E1%84%8B%E1%85%B4_de170aa169.jpg")`;
     document.querySelector("body").style.backgroundRepeat = 'no-repeat';
     document.querySelector("body").style.backgroundSize = 'cover';
-    document.querySelector("#root").style.overflow = 'hidden';
+    document.querySelector("html").style.overflow = 'hidden';
 
     const [yutThrowImageSrc, setYutThrowImageSrc] = useState("/image/yut1.gif");
     const [yutThrowImageDisplay, setYutThrowImageDisplay] = useState("none");
@@ -212,18 +212,18 @@ function YutPan() {
 
     }
 
-    const StateBuildStyle = {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover',
-        width: 40,
-        height: 23,
-        transform: "translate(-40%, -40%)",
-        pointerEvents: "none",
-        scale: "1.5",
-    }
+    // const StateBuildStyle = {
+    //     position: "absolute",
+    //     top: 0,
+    //     left: 0,
+    //     backgroundRepeat: 'no-repeat',
+    //     backgroundSize: 'cover',
+    //     width: 40,
+    //     height: 23,
+    //     transform: "translate(-40%, -40%)",
+    //     pointerEvents: "none",
+    //     scale: "1.5",
+    // }
 
     const YutFanBackGroundStyle = {
         position: "absolute",

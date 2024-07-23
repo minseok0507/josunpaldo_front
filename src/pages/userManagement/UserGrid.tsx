@@ -24,7 +24,7 @@ const StyledFlexBox = styled(FlexBox)(({ theme }) => ({
 
 const UserGrid: FC = () => {
   // change navbar title
-  useTitle("Game Room");
+  useTitle("놀이방");
 
   const navigate = useNavigate();
   const handleAddUser = () => navigate("/home/add-room");
@@ -50,7 +50,7 @@ const UserGrid: FC = () => {
 };
 
 
-// 유저 불러오는 api
+// 방 정보 불러오는 api
 const userList = [
   {
     cover: "/static/cover/cover-1.png",
@@ -60,6 +60,7 @@ const userList = [
     seedMoney: 500,
     fullMember: 4,
     currentMember: 1,
+    roomCode: "adsadvkjwi"
   },
   {
     cover: "/static/cover/cover-4.png",
@@ -69,6 +70,7 @@ const userList = [
     seedMoney: 1000,
     fullMember: 2,
     currentMember: 1,
+    roomCode: "safasvasdnewo"
   },
 ];
 

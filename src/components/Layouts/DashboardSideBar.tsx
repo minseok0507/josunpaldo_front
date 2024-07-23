@@ -57,7 +57,7 @@ const DashboardSideBar: FC<SideNavBarProps> = ({
     const mainSideBarContent = (
         <List sx={{height: "100%"}}>
             <StyledListItemButton disableRipple>
-                <img src="/static/logo/logo.svg" alt="UKO Logo" width={31}/>
+                <img src="/static/logo/logo.png" alt="UKO Logo" width={31}/>
             </StyledListItemButton>
 
             <ScrollBar style={{maxHeight: "calc(100% - 50px)"}}>
