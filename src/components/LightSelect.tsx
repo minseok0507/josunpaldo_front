@@ -21,23 +21,16 @@ const StyledSelect = styled(Select)<SelectProps>(({theme}) => ({
 }));
 
 const LightSelect = (props: SelectProps) => {
-    const [age, setAge] = React.useState<string>('');
     const theme = useTheme(); // 테마 가져오기
-
-    const handleChange = (event: SelectChangeEvent<unknown>, child: React.ReactNode) => {
-        setAge(event.target.value as string);
-    };
 
     return (
         <FormControl variant="outlined" fullWidth>
-            <InputLabel sx={{color: theme.palette.secondary[300]}} shrink>
+            <InputLabel sx={{color: theme.palette.secondary[400]}}>
                 {props.label}
             </InputLabel>
             <StyledSelect
                 {...props}
                 label={props.label}
-                value={age}
-                onChange={handleChange}
             />
         </FormControl>
     );

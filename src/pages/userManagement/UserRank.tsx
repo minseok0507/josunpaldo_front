@@ -1,8 +1,9 @@
-import { Box, Button, Grid, styled } from "@mui/material";
+import {Box, Button, Dialog, DialogContent, DialogTitle, Grid, styled} from "@mui/material";
 import FlexBox from "components/FlexBox";
 import UserCard from "components/userManagement/UserCard";
 import useTitle from "hooks/useTitle";
-import { FC } from "react";
+import {FC, useState} from "react";
+import AddNewUser from "./AddNewUser";
 
 // styled component
 const StyledFlexBox = styled(FlexBox)(({ theme }) => ({
@@ -24,11 +25,20 @@ const UserRank: FC = () => {
   // change navbar title
   useTitle("놀이방");
 
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <Box pt={2} pb={4}>
       <StyledFlexBox>
-        <Button fullWidth={true} variant="contained">
+        <Button fullWidth={true} variant="contained" onClick={handleClickOpen}>
           방 만들기
         </Button>
       </StyledFlexBox>
@@ -40,6 +50,18 @@ const UserRank: FC = () => {
           </Grid>
         ))}
       </Grid>
+      <Dialog
+          fullWidth={true}
+          maxWidth={"sm"}
+          open={open}
+          onClose={handleClose}
+      >
+        <DialogTitle sx={{fontSize:"21px", padding: "20px 30px 0"}}>방 만들기</DialogTitle>
+        <DialogContent sx={{padding: 0}}>
+          <AddNewUser/>
+        </DialogContent>
+
+      </Dialog>
     </Box>
   );
 };
