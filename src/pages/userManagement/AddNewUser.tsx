@@ -61,8 +61,8 @@ const AddNewUser: FC = () => {
                                     onChange={(event) => setFieldValue("totPlayer", event.target.value)} // 수정된 부분
                                     error={Boolean(touched.totPlayer && errors.totPlayer)}
                                 >
-                                    <MenuItem value={2}>2</MenuItem>
-                                    <MenuItem value={4}>4</MenuItem>
+                                    <MenuItem value={2}>2명</MenuItem>
+                                    <MenuItem value={4}>4명</MenuItem>
                                 </LightSelect>
                             </Grid>
 
