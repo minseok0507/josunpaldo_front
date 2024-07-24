@@ -1,4 +1,6 @@
 import Icons from "icons/sidebar";
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 
 const index = [
   // {
@@ -13,12 +15,12 @@ const index = [
   // },
   {
     title: "놀이방",
-    Icon: Icons.UserGridIcon,
+    Icon: SportsEsportsIcon,
     path: "/home/game-room",
   },
   {
-    title: "Ranking",
-    Icon: Icons.UserManagementIcon,
+    title: "순위",
+    Icon: MilitaryTechIcon,
     path: "/home/user-rank",
   },
   // {

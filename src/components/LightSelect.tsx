@@ -1,4 +1,4 @@
-import {FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, SelectProps, styled} from "@mui/material";
+import {FormControl, InputLabel, Select, SelectProps, styled} from "@mui/material";
 import React from "react";
 import {useTheme} from "@mui/material/styles";
 

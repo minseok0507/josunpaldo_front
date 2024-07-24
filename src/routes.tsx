@@ -23,11 +23,11 @@ const DashboardSaaS = Loadable(lazy(() => import("./pages/dashboards/SaaS")));
 
 
 // user management
-const UserList = Loadable(
-  lazy(() => import("./pages/userManagement/UserRank"))
-);
-const UserGrid = Loadable(
+const GameRoom = Loadable(
   lazy(() => import("./pages/userManagement/GameRoom"))
+);
+const UserRank = Loadable(
+  lazy(() => import("./pages/userManagement/UserRank"))
 );
 // const AddNewUser = Loadable(
 //   lazy(() => import("./pages/userManagement/AddNewUser"))
@@ -86,11 +86,11 @@ const routes = [
 
       {
         path: "user-rank",
-        element: <UserList />,
+        element: <UserRank />,
       },
       {
         path: "game-room",
-        element: <UserGrid />,
+        element: <GameRoom />,
       },
       // {
       //   path: "add-room",

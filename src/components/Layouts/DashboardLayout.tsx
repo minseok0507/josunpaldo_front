@@ -21,7 +21,6 @@ const Wrapper = styled(Box)(({ theme }) => ({
 const DashboardLayout: FC = ({ children }) => {
   const [showMobileSideBar, setShowMobileSideBar] = useState(false);
   const {pathname} = useLocation();
-  console.log(pathname);
   return (
     <Fragment>
         {pathname.startsWith("/home/in-game/") ? null :
