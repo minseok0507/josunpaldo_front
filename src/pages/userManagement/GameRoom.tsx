@@ -23,7 +23,7 @@ const StyledFlexBox = styled(FlexBox)(({ theme }) => ({
   },
 }));
 
-const UserList: FC = () => {
+const GameRoom: FC = () => {
   // change navbar title
   useTitle("User Rank");
 
@@ -39,4 +39,4 @@ const UserList: FC = () => {
   );
 };
 
-export default UserList;
+export default GameRoom;

@@ -24,14 +24,14 @@ const DashboardSaaS = Loadable(lazy(() => import("./pages/dashboards/SaaS")));
 
 // user management
 const UserList = Loadable(
-  lazy(() => import("./pages/userManagement/UserList"))
+  lazy(() => import("./pages/userManagement/UserRank"))
 );
 const UserGrid = Loadable(
-  lazy(() => import("./pages/userManagement/UserGrid"))
+  lazy(() => import("./pages/userManagement/GameRoom"))
 );
-const AddNewUser = Loadable(
-  lazy(() => import("./pages/userManagement/AddNewUser"))
-);
+// const AddNewUser = Loadable(
+//   lazy(() => import("./pages/userManagement/AddNewUser"))
+// );
 
 // error
 const Error = Loadable(lazy(() => import("./pages/404")));
@@ -92,10 +92,10 @@ const routes = [
         path: "game-room",
         element: <UserGrid />,
       },
-      {
-        path: "add-room",
-        element: <AddNewUser />,
-      },
+      // {
+      //   path: "add-room",
+      //   element: <AddNewUser />,
+      // },
     ],
   },
   {

@@ -1,10 +1,8 @@
 import { Box, Button, Grid, styled } from "@mui/material";
 import FlexBox from "components/FlexBox";
-import SearchInput from "components/SearchInput";
 import UserCard from "components/userManagement/UserCard";
 import useTitle from "hooks/useTitle";
 import { FC } from "react";
-import { useNavigate } from "react-router-dom";
 
 // styled component
 const StyledFlexBox = styled(FlexBox)(({ theme }) => ({
@@ -22,19 +20,16 @@ const StyledFlexBox = styled(FlexBox)(({ theme }) => ({
   },
 }));
 
-const UserGrid: FC = () => {
+const UserRank: FC = () => {
   // change navbar title
   useTitle("놀이방");
 
-  const navigate = useNavigate();
-  const handleAddUser = () => navigate("/home/add-room");
 
   return (
     <Box pt={2} pb={4}>
       <StyledFlexBox>
-        <SearchInput placeholder="Search user..." />
-        <Button variant="contained" onClick={handleAddUser}>
-          Add New Room
+        <Button fullWidth={true} variant="contained">
+          방 만들기
         </Button>
       </StyledFlexBox>
 
@@ -74,4 +69,4 @@ const userList = [
   },
 ];
 
-export default UserGrid;
+export default UserRank;

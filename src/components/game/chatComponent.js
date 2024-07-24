@@ -3,11 +3,11 @@ import useWindowSizeCustom from "../../hooks/useWindowSizeCustom.js";
 import {useParams} from "react-router";
 import {useEffect, useRef, useState} from "react";
 
-
 export default function ChatComponent() {
 
     const {roomId} = useParams();
     const inputRef = useRef(null);
+
 
     const [myJWT, setMyJWT] = useState("");
     useEffect(() => {
@@ -15,14 +15,14 @@ export default function ChatComponent() {
         setMyJWT(getJWT);
     }, []);
 
-    var ws;
+    let ws;
     window.onload = () => {
         wsOpen();
     }
 
     const wsOpen = () => {
         //웹소켓 전송시 현재 방의 번호를 넘겨서 보낸다.
-        ws = new WebSocket("ws://localhost:8080/chatroom/" + roomId);
+        ws = new WebSocket("ws://localhost:8080/game/" + roomId);
         wsEvt();
     }
 
@@ -32,12 +32,18 @@ export default function ChatComponent() {
             console.log("opened");
             console.log(data);
         }
-
+        ws.onmessage = (data) => {
+            console.log(data);
+            const onMessage = JSON.parse(data.data);
+            if (onMessage.type === "message"){
+                console.log(onMessage.msg)
+            }
+        }
     }
 
     const inputSend = () => {
         const inputElement = inputRef.current?.querySelector("input");
-        if (inputElement) {
+        if (ws && ws.readyState === WebSocket.OPEN) { // WebSocket이 열려 있는지 확인
             const value = inputElement.value;
             if (value.length > 0) {
                 let option = {

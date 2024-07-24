@@ -1,8 +1,9 @@
 // noinspection BadExpressionStatementJS
 
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import useWindowSizeCustom from "../../hooks/useWindowSizeCustom.js";
-
+import {yutStates} from "./YutStates.js"
+import {useParams} from "react-router";
 
 function YutPan() {
     console.log("YutPan render");
@@ -25,6 +26,53 @@ function YutPan() {
 
     const [resultArr, setResultArr] = useState([]);
     const [resultDelIndex, setResultDelIndex] = useState(null);
+
+
+    const yutRefs = useRef([]);
+
+    // YutState에 ref를 할당
+    useEffect(() => {
+        yutRefs.current = yutRefs.current.slice(0, yutStates.length);
+    }, []);
+
+    const {roomId} = useParams();
+
+    let ws;
+    window.onload = () => {
+        wsOpen();
+    }
+
+    const wsOpen = () => {
+        //웹소켓 전송시 현재 방의 번호를 넘겨서 보낸다.
+        ws = new WebSocket("ws://localhost:8080/game/" + roomId);
+        wsEvt();
+    }
+
+    const wsEvt = () => {
+        ws.onopen = (data) => {
+            //소켓이 열리면 동작
+            console.log("opened1");
+            console.log(data);
+        }
+        ws.onmessage = (data) => {
+            console.log(data);
+            const onMessage = JSON.parse(data.data);
+            if (onMessage.type === "message") {
+                console.log(onMessage.msg)
+            }
+        }
+    }
+
+    const sendCommand = (command) => {
+        if (ws && ws.readyState === WebSocket.OPEN) { // WebSocket이 열려 있는지 확인
+            let option = {
+                type: "command",
+                roomNumber: roomId,
+                command: command
+            };
+            ws.send(JSON.stringify(option))
+        }
+    };
 
 
     const stateMouseOver = (e) => {
@@ -104,12 +152,11 @@ function YutPan() {
         }
     }
 
-    const arrowClick = (e) => {
-        console.log(e.currentTarget.classList[0])
-        const index = e.currentTarget.classList[0].replace("arrowIndex", "")
-        const YutIndex = document.getElementsByClassName("YutIndex" + index)[0];
-        setPlayer1Top(parseInt(YutIndex.style.top, 10))
-        setPlayer1Left(parseInt(YutIndex.style.left, 10))
+    const arrowClick = (index) => {
+        const YutData = yutStates.find(states => states.YutIndex === parseInt(index))
+        console.log(YutData)
+        setPlayer1Top(parseInt(YutData?.top, 10))
+        setPlayer1Left(parseInt(YutData?.left, 10))
         setPlayer1Index(parseInt(index, 10));
         if ((index >= 0 && index <= 9) || index === "22" || index === "23") {
             setPlayer1Direction("scaleX(1)")
@@ -303,6 +350,44 @@ function YutPan() {
     }
 
 
+    const YutState = ({name, left, top, border, onMouseOver, onMouseOut}) => {
+        return (
+            <div
+                className="YutState"
+                onMouseOver={onMouseOver}
+                onMouseOut={onMouseOut}
+                style={{
+                    ...YutStateStyle,
+                    left: left,
+                    top: top,
+                    border: border,
+                }}
+            >
+                <div style={YutName} className="yutName">{name}</div>
+            </div>
+        );
+    };
+
+
+    const Arrow = ({index, left, top, onMouseOver, onMouseOut, onClick}) => {
+        return (
+            <div
+                className={`arrowIndex${index} arrowIndex`}
+                onMouseOver={onMouseOver}
+                onMouseOut={onMouseOut}
+                onClick={onClick}
+                style={{
+                    ...arrowStyle,
+                    left: left + 10,
+                    top: top - 35,
+                }}
+            >
+                <img src="/image/underArrow.png" alt=""/>
+            </div>
+        );
+    };
+
+
     return <div style={YutPanStyle}>
         <div style={{
             position: "absolute",
@@ -342,493 +427,19 @@ function YutPan() {
                 <span>민석이</span>
             </div>
 
-
-            <div className="YutState YutIndex0"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 356.11,
-                     top: 356.31,
-                     border: '20px #A5A5A5 solid',
-                 }}>
-                <div style={YutName} className="yutName">출발
-                </div>
-            </div>
-
-            <div className="YutState YutIndex1"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 312.78,
-                     top: 389.11,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">나주
-                </div>
-            </div>
-
-            <div className="YutState YutIndex2"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 262.49,
-                     top: 409.94,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">광주
-                </div>
-            </div>
-
-            <div className="YutState YutIndex3"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 208.52,
-                     top: 417.05,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-
-            <div className="YutState YutIndex4"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 154.55,
-                     top: 409.94,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">전주
-                </div>
-            </div>
-
-            <div className="YutState YutIndex5"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 104.26,
-                     top: 389.11,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">익산
-                </div>
-            </div>
-
-            <div className="YutState YutIndex6"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 61.41,
-                     top: 356.31,
-                     border: '20px #A5A5A5 solid',
-                 }}>
-                <div style={YutName} className="yutName">뭐하지
-                </div>
-            </div>
-
-            <div className="YutState YutIndex7"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 27.94,
-                     top: 312.78,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">울산
-                </div>
-            </div>
-
-            <div className="YutState YutIndex8"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 7.10,
-                     top: 262.49,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">부산
-                </div>
-            </div>
-
-            <div className="YutState YutIndex9"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 0,
-                     top: 208.52,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-
-            <div className="YutState YutIndex10"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 7.10,
-                     top: 154.55,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">경주
-                </div>
-            </div>
-
-            <div className="YutState YutIndex11"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 27.94,
-                     top: 104.26,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">대구
-                </div>
-            </div>
-
-            <div className="YutState YutIndex12"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 60.27,
-                     top: 60.47,
-                     border: '20px #A5A5A5 solid',
-                 }}>
-                <div style={YutName} className="yutName">KTX
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex13"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 104.26,
-                     top: 27.94,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">천안
-                </div>
-            </div>
-
-            <div className="YutState YutIndex14"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 154.55,
-                     top: 7.11,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">공주
-                </div>
-            </div>
-
-            <div className="YutState YutIndex15"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 208.52,
-                     top: 0,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-
-            <div className="YutState YutIndex16"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 262.49,
-                     top: 7.11,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">청주
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex17"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 312.78,
-                     top: 27.94,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">충주
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex18"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 356.54,
-                     top: 61.18,
-                     border: '20px #A5A5A5 solid',
-                 }}>
-                <div style={YutName} className="yutName">탐라국
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex19"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 389.11,
-                     top: 104.26,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">인천
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex20"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 409.94,
-                     top: 154.55,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">수원
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex21"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 417.04,
-                     top: 208.52,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex22"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 409.94,
-                     top: 262.49,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">양주
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex23"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 389.11,
-                     top: 312.78,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">서울
-                </div>
-            </div>
-            {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
-            {/*외각 끝*/}
-            {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
-
-
-            <div className="YutState YutIndex30"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 98.30,
-                     top: 319.42,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">경성
-                </div>
-            </div>
-
-            <div className="YutState YutIndex31"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 135.20,
-                     top: 282.52,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-
-            <div className="YutState YutIndex32"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 172.09,
-                     top: 245.63,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">함흥
-                </div>
-            </div>
-
-            <div className="YutState YutIndex100"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 208.76,
-                     top: 208.96,
-                     border: '20px #A5A5A5 solid',
-                 }}>
-                <div style={YutName} className="yutName">뭐였지
-                </div>
-            </div>
-            <div className="YutState YutIndex34"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 245.87,
-                     top: 171.85,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">원주
-                </div>
-            </div>
-            <div className="YutState YutIndex35"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 282.76,
-                     top: 134.96,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-            <div className="YutState YutIndex36"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 319.65,
-                     top: 98.07,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">강릉
-                </div>
-            </div>
-
-
-            <div className="YutState YutIndex40"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 97.86,
-                     top: 98.07,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">황주
-                </div>
-            </div>
-
-            <div className="YutState YutIndex41"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 134.76,
-                     top: 134.96,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-            <div className="YutState YutIndex42"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 171.65,
-                     top: 171.85,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">개성
-                </div>
-            </div>
-            <div className="YutState YutIndex44"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 245.43,
-                     top: 245.63,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">안주
-                </div>
-            </div>
-            <div className="YutState YutIndex45"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 282.32,
-                     top: 282.52,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">이벤트
-                </div>
-            </div>
-            <div className="YutState YutIndex46"
-                 onMouseOver={stateMouseOver}
-                 onMouseOut={stateMouseOut}
-                 style={{
-                     ...YutStateStyle,
-                     left: 319.21,
-                     top: 319.42,
-                     border: '20px #eeeeee solid',
-                 }}>
-                <div style={YutName} className="yutName">평양
-                </div>
-            </div>
+            {
+                yutStates.map((state) => (
+                    <YutState
+                        key={state.YutIndex}
+                        name={state.name}
+                        left={state.left}
+                        top={state.top}
+                        border={state.border}
+                        onMouseOver={stateMouseOver}
+                        onMouseOut={stateMouseOut}
+                    />
+                ))
+            }
 
 
             {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
@@ -840,455 +451,471 @@ function YutPan() {
             {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
             {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
             {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
-            <div className="arrowIndex0 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 356.11 + 10,
-                     top: 356.31 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
 
-            <div className="arrowIndex1 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 312.78 + 10,
-                     top: 389.11 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {
+                yutStates.map((state, index) => (
+                    <Arrow
+                        key={state.YutIndex}
+                        ref={(el) => (yutRefs.current[index] = el)} // ref 할당
+                        index={state.YutIndex}
+                        left={state.left}
+                        top={state.top}
+                        onMouseOver={arrowMouseOver}
+                        onMouseOut={arrowMouseOut}
+                        onClick={() => arrowClick(state.YutIndex)}
+                    />
+                ))
+            }
 
-            <div className="arrowIndex2 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 262.49 + 10,
-                     top: 409.94 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex0 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 356.11 + 10,*/}
+            {/*         top: 356.31 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex3 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 208.52 + 10,
-                     top: 417.05 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex1 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 312.78 + 10,*/}
+            {/*         top: 389.11 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex4 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 154.55 + 10,
-                     top: 409.94 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex2 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 262.49 + 10,*/}
+            {/*         top: 409.94 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex5 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 104.26 + 10,
-                     top: 389.11 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex3 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 208.52 + 10,*/}
+            {/*         top: 417.05 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex6 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 61.41 + 10,
-                     top: 356.31 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex4 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 154.55 + 10,*/}
+            {/*         top: 409.94 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex7 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 27.94 + 10,
-                     top: 312.78 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex5 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 104.26 + 10,*/}
+            {/*         top: 389.11 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex8 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 7.10 + 10,
-                     top: 262.49 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex6 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 61.41 + 10,*/}
+            {/*         top: 356.31 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex9 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 0 + 10,
-                     top: 208.52 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex7 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 27.94 + 10,*/}
+            {/*         top: 312.78 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex10 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 7.10 + 10,
-                     top: 154.55 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex8 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 7.10 + 10,*/}
+            {/*         top: 262.49 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex11 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 27.94 + 10,
-                     top: 104.26 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex9 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 0 + 10,*/}
+            {/*         top: 208.52 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex12 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 60.27 + 10,
-                     top: 60.47 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex10 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 7.10 + 10,*/}
+            {/*         top: 154.55 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
+            {/*<div className="arrowIndex11 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 27.94 + 10,*/}
+            {/*         top: 104.26 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex13 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 104.26 + 10,
-                     top: 27.94 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-
-            <div className="arrowIndex14 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 154.55 + 10,
-                     top: 7.11 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-
-            <div className="arrowIndex15 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 208.52 + 10,
-                     top: 0 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-
-            <div className="arrowIndex16 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 262.49 + 10,
-                     top: 7.11 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex12 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 60.27 + 10,*/}
+            {/*         top: 60.47 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex17 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 312.78 + 10,
-                     top: 27.94 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex13 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 104.26 + 10,*/}
+            {/*         top: 27.94 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+
+            {/*<div className="arrowIndex14 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 154.55 + 10,*/}
+            {/*         top: 7.11 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+
+            {/*<div className="arrowIndex15 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 208.52 + 10,*/}
+            {/*         top: 0 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+
+            {/*<div className="arrowIndex16 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 262.49 + 10,*/}
+            {/*         top: 7.11 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex18 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 356.54 + 10,
-                     top: 61.18 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex17 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 312.78 + 10,*/}
+            {/*         top: 27.94 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex19 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 389.11 + 10,
-                     top: 104.26 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex18 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 356.54 + 10,*/}
+            {/*         top: 61.18 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex20 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 409.94 + 10,
-                     top: 154.55 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex19 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 389.11 + 10,*/}
+            {/*         top: 104.26 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex21 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 417.04 + 10,
-                     top: 208.52 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex20 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 409.94 + 10,*/}
+            {/*         top: 154.55 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex22 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 409.94 + 10,
-                     top: 262.49 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex21 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 417.04 + 10,*/}
+            {/*         top: 208.52 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex23 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 389.11 + 10,
-                     top: 312.78 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
-            {/*외각 끝*/}
-            {/*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/}
+            {/*<div className="arrowIndex22 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 409.94 + 10,*/}
+            {/*         top: 262.49 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
-            <div className="arrowIndex30 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 98.30 + 10,
-                     top: 319.42 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-
-            <div className="arrowIndex31 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 135.20 + 10,
-                     top: 282.52 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-
-            <div className="arrowIndex32 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 172.09 + 10,
-                     top: 245.63 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-
-            <div className="arrowIndex100 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 208.76 + 10,
-                     top: 208.96 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            <div className="arrowIndex34 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 245.87 + 10,
-                     top: 171.85 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            <div className="arrowIndex35 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 282.76 + 10,
-                     top: 134.96 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            <div className="arrowIndex36 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 319.65 + 10,
-                     top: 98.07 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex23 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 389.11 + 10,*/}
+            {/*         top: 312.78 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*/!*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*!/*/}
+            {/*/!*외각 끝*!/*/}
+            {/*/!*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*!/*/}
 
 
-            <div className="arrowIndex40 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 97.86 + 10,
-                     top: 98.07 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex30 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 98.30 + 10,*/}
+            {/*         top: 319.42 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
-            <div className="arrowIndex41 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 134.76 + 10,
-                     top: 134.96 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            <div className="arrowIndex42 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 171.65 + 10,
-                     top: 171.85 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            <div className="arrowIndex44 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 245.43 + 10,
-                     top: 245.63 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            <div className="arrowIndex45 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 282.32 + 10,
-                     top: 282.52 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
-            <div className="arrowIndex46 arrowIndex"
-                 onMouseOver={arrowMouseOver}
-                 onMouseOut={arrowMouseOut}
-                 onClick={arrowClick}
-                 style={{
-                     ...arrowStyle,
-                     left: 319.21 + 10,
-                     top: 319.42 - 35,
-                 }}>
-                <img src="/image/underArrow.png" alt=""/>
-            </div>
+            {/*<div className="arrowIndex31 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 135.20 + 10,*/}
+            {/*         top: 282.52 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+
+            {/*<div className="arrowIndex32 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 172.09 + 10,*/}
+            {/*         top: 245.63 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+
+            {/*<div className="arrowIndex100 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 208.76 + 10,*/}
+            {/*         top: 208.96 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*<div className="arrowIndex34 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 245.87 + 10,*/}
+            {/*         top: 171.85 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*<div className="arrowIndex35 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 282.76 + 10,*/}
+            {/*         top: 134.96 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*<div className="arrowIndex36 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 319.65 + 10,*/}
+            {/*         top: 98.07 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+
+
+            {/*<div className="arrowIndex40 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 97.86 + 10,*/}
+            {/*         top: 98.07 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+
+            {/*<div className="arrowIndex41 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 134.76 + 10,*/}
+            {/*         top: 134.96 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*<div className="arrowIndex42 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 171.65 + 10,*/}
+            {/*         top: 171.85 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*<div className="arrowIndex44 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 245.43 + 10,*/}
+            {/*         top: 245.63 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*<div className="arrowIndex45 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 282.32 + 10,*/}
+            {/*         top: 282.52 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
+            {/*<div className="arrowIndex46 arrowIndex"*/}
+            {/*     onMouseOver={arrowMouseOver}*/}
+            {/*     onMouseOut={arrowMouseOut}*/}
+            {/*     onClick={arrowClick}*/}
+            {/*     style={{*/}
+            {/*         ...arrowStyle,*/}
+            {/*         left: 319.21 + 10,*/}
+            {/*         top: 319.42 - 35,*/}
+            {/*     }}>*/}
+            {/*    <img src="/image/underArrow.png" alt=""/>*/}
+            {/*</div>*/}
 
 
         </div>
