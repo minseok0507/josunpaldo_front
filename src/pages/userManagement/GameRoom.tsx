@@ -89,6 +89,66 @@ const userList = [
     currentMember: 1,
     roomCode: "safasvasdnewo"
   },
+  {
+    cover: "/static/cover/cover-4.png",
+    avatar: "/static/avatar/002-girl.svg",
+    name: "짱짱맨",
+    roomName: "고수만 와라",
+    seedMoney: 1000,
+    fullMember: 2,
+    currentMember: 1,
+    roomCode: "safasvasdnewo"
+  },
+  {
+    cover: "/static/cover/cover-4.png",
+    avatar: "/static/avatar/002-girl.svg",
+    name: "짱짱맨",
+    roomName: "고수만 와라",
+    seedMoney: 1000,
+    fullMember: 2,
+    currentMember: 1,
+    roomCode: "safasvasdnewo"
+  },
+  {
+    cover: "/static/cover/cover-4.png",
+    avatar: "/static/avatar/002-girl.svg",
+    name: "짱짱맨",
+    roomName: "고수만 와라",
+    seedMoney: 1000,
+    fullMember: 2,
+    currentMember: 1,
+    roomCode: "safasvasdnewo"
+  },
+  {
+    cover: "/static/cover/cover-4.png",
+    avatar: "/static/avatar/002-girl.svg",
+    name: "짱짱맨",
+    roomName: "고수만 와라",
+    seedMoney: 1000,
+    fullMember: 2,
+    currentMember: 1,
+    roomCode: "safasvasdnewo"
+  },
+  {
+    cover: "/static/cover/cover-4.png",
+    avatar: "/static/avatar/002-girl.svg",
+    name: "짱짱맨",
+    roomName: "고수만 와라",
+    seedMoney: 1000,
+    fullMember: 2,
+    currentMember: 1,
+    roomCode: "safasvasdnewo"
+  },
+  {
+    cover: "/static/cover/cover-4.png",
+    avatar: "/static/avatar/002-girl.svg",
+    name: "짱짱맨",
+    roomName: "고수만 와라",
+    seedMoney: 1000,
+    fullMember: 2,
+    currentMember: 1,
+    roomCode: "safasvasdnewo"
+  },
 ];
 
 export default GameRoom;
