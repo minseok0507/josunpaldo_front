@@ -37,23 +37,15 @@ function YutPan() {
 
     const {roomId} = useParams();
 
-    let ws;
-    window.onload = () => {
-        wsOpen();
-    }
+    const [socket, setSocket] = useState(null);
+    useEffect(() => {
 
-    const wsOpen = () => {
-        //웹소켓 전송시 현재 방의 번호를 넘겨서 보낸다.
-        ws = new WebSocket("ws://localhost:8080/game/" + roomId);
-        wsEvt();
-    }
+        const ws = new WebSocket("ws://localhost:8080/commend/" + roomId);
 
-    const wsEvt = () => {
         ws.onopen = (data) => {
-            //소켓이 열리면 동작
-            console.log("opened1");
-            console.log(data);
-        }
+            console.log('commend connected');
+        };
+
         ws.onmessage = (data) => {
             console.log(data);
             const onMessage = JSON.parse(data.data);
@@ -61,18 +53,29 @@ function YutPan() {
                 console.log(onMessage.msg)
             }
         }
-    }
 
-    // const sendCommand = (command) => {
-    //     if (ws && ws.readyState === WebSocket.OPEN) { // WebSocket이 열려 있는지 확인
-    //         let option = {
-    //             type: "command",
-    //             roomNumber: roomId,
-    //             command: command
-    //         };
-    //         ws.send(JSON.stringify(option))
-    //     }
-    // };
+        ws.onclose = () => {
+            console.log('commend disconnected');
+        };
+
+        setSocket(ws);
+
+        return () => {
+            ws.close();
+        };
+    }, [roomId]);
+
+
+    const sendCommand = (command) => {
+        if (socket && socket.readyState === WebSocket.OPEN) { // WebSocket이 열려 있는지 확인
+            let option = {
+                type: "command",
+                roomNumber: roomId,
+                command: command
+            };
+            socket.send(JSON.stringify(option))
+        }
+    };
 
 
     const stateMouseOver = (e) => {
@@ -117,6 +120,8 @@ function YutPan() {
             setYutThrowImageDisplay("flex")
             const randomNum = Math.floor(Math.random() * 5 + 1);
             setYutThrowImageSrc(`/image/yut${randomNum}.gif`)
+
+            sendCommand("ThrowYut")
 
             setTimeout(() => {
                 setYutThrowImageDisplay("none")
@@ -411,7 +416,11 @@ function YutPan() {
             <div className="YutResultBtn"
                  style={YetResultBtnStyle}>
                 {resultArr.map((item, index) => (
-                    <div style={{width: 30, height: 30}} onClick={() => resultUseClick(item, index)}>
+                    <div
+                        key={`resultArr-${index}`} // 다른 접두사를 사용합니다.
+                        style={{width: 30, height: 30}}
+                        onClick={() => resultUseClick(item, index)}
+                    >
                         <img src={`/image/yutResult.${item}.0.png`} alt="결과" width="30"/>
                     </div>
                 ))}
@@ -430,7 +439,7 @@ function YutPan() {
             {
                 yutStates.map((state) => (
                     <YutState
-                        key={state.YutIndex}
+                        key={`yutState-${state.YutIndex}`}
                         name={state.name}
                         left={state.left}
                         top={state.top}
@@ -442,11 +451,10 @@ function YutPan() {
             }
 
 
-
             {
                 yutStates.map((state, index) => (
                     <Arrow
-                        key={state.YutIndex}
+                        key={`arrow-${state.YutIndex}`}
                         ref={(el) => (yutRefs.current[index] = el)} // ref 할당
                         index={state.YutIndex}
                         left={state.left}

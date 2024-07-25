@@ -11,6 +11,9 @@ const SaaS: FC = () => {
     // change navbar title
     useTitle("In Game");
     console.log("SaaS render");
+    window.onload =  () => {
+
+    }
     return (
         <Box>
             <YutPan/>

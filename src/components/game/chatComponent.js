@@ -8,6 +8,8 @@ export default function ChatComponent() {
     const {roomId} = useParams();
     const inputRef = useRef(null);
 
+    const [socket, setSocket] = useState(null);
+
 
     const [myJWT, setMyJWT] = useState("");
     useEffect(() => {
@@ -15,46 +17,47 @@ export default function ChatComponent() {
         setMyJWT(getJWT);
     }, []);
 
-    let ws;
-    window.onload = () => {
-        wsOpen();
-    }
 
-    const wsOpen = () => {
-        //웹소켓 전송시 현재 방의 번호를 넘겨서 보낸다.
-        ws = new WebSocket("ws://localhost:8080/game/" + roomId);
-        wsEvt();
-    }
+    useEffect(() => {
 
-    const wsEvt = () => {
-        ws.onopen = (data) => {
-            //소켓이 열리면 동작
-            console.log("opened");
-            console.log(data);
-        }
-        ws.onmessage = (data) => {
-            console.log(data);
-            const onMessage = JSON.parse(data.data);
-            if (onMessage.type === "message"){
-                console.log(onMessage.msg)
+            const ws = new WebSocket("ws://localhost:8080/chat/" + roomId);
+
+            ws.onopen = (data) => {
+                console.log('chat connected');
+            };
+
+            ws.onmessage = (data) => {
+                console.log(data);
+                const onMessage = JSON.parse(data.data);
+                if (onMessage.type === "message") {
+                    console.log(onMessage.msg)
+                }
             }
-        }
-    }
 
-    const inputSend = () => {
+            ws.onclose = () => {
+                console.log('chat disconnected');
+            };
+
+            setSocket(ws);
+
+            return () => {
+                ws.close();
+            };
+        }, [roomId]);
+
+
+    const inputSend2 = () => {
         const inputElement = inputRef.current?.querySelector("input");
-        if (ws && ws.readyState === WebSocket.OPEN) { // WebSocket이 열려 있는지 확인
-            const value = inputElement.value;
-            if (value.length > 0) {
-                let option = {
-                    type: "message",
-                    roomNumber: roomId,
-                    msg: value,
-                    jwt: myJWT,
-                };
-                ws.send(JSON.stringify(option))
-                inputElement.value = ""; // 입력 필드의 값을 직접 변경
-            }
+        const value = inputElement.value;
+        if (value.length > 0) {
+            let option = {
+                type: "message",
+                roomNumber: roomId,
+                msg: value,
+                jwt: myJWT,
+            };
+            socket.send(JSON.stringify(option))
+            inputElement.value = ""; // 입력 필드의 값을 직접 변경
         }
     };
 
@@ -133,11 +136,11 @@ export default function ChatComponent() {
                 <div className="bg-white border-t border-gray-200 p-4 flex items-center" style={InputForm}>
                     <Input
                         placeholder="Type your message..."
-                        className="flex-1 bg-gray-100 border-none focus:ring-0 focus:outline-none"
+                        className="flex-1 bg-gray-000 border-none focus:ring-0 focus:outline-none"
                         ref={inputRef}
                     />
                     <Button variant="solid" className="bg-green-500 hover:bg-green-600 text-white ml-2"
-                            onClick={inputSend}>
+                            onClick={inputSend2}>
                         Send
                     </Button>
                 </div>
