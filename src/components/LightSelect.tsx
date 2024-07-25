@@ -2,6 +2,8 @@ import {FormControl, InputLabel, Select, SelectProps, styled} from "@mui/materia
 import React from "react";
 import {useTheme} from "@mui/material/styles";
 
+
+
 const StyledSelect = styled(Select)<SelectProps>(({theme}) => ({
     "& .MuiOutlinedInput-input": {
         fontWeight: 500,
